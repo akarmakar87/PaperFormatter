@@ -16,6 +16,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
      */
     public MainWindowFormatter() {
         initComponents();
+        //t
     }
 
     /**
