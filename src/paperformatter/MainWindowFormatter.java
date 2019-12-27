@@ -476,14 +476,13 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             File f;
             JFileChooser jfc = new JFileChooser();
             
-            if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+            if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){ 
                 f = jfc.getSelectedFile();
-            else
+                label_essayFile.setText(f.getName());
+                loadFileText(f,true);
+            }else{
                 return;
-            
-            label_essayFile.setText(f.getName());
-                 
-            loadFileText(f,true);
+            }
     }//GEN-LAST:event_button_essayFileActionPerformed
 
     private void button_bibFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_bibFileActionPerformed
@@ -611,12 +610,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void loadFileText(File f, boolean e) {
-        try {
-            XWPFDocument docx = new XWPFDocument(new FileInputStream(f));
-            XWPFWordExtractor we = new XWPFWordExtractor(docx);
-            we.
-        } catch (IOException ex) {
-            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        XWPFDocument docx;
+        System.out.println("done");
     }
 }
