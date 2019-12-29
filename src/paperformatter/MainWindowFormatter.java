@@ -7,13 +7,13 @@ package paperformatter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Scanner;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -466,23 +466,26 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
     private void button_essayFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_essayFileActionPerformed
         
-        /*if(editor_essayText.getText() != null){
-            essay =  new Scanner(editor_essayText.getText());
-        }*/
-        
-        
-            // TODO add your handling code here:
-            
+        try {            
             File f;
             JFileChooser jfc = new JFileChooser();
             
-            if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){ 
-                f = jfc.getSelectedFile();
-                label_essayFile.setText(f.getName());
-                loadFileText(f,true);
+            if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+                try {
+                    f = jfc.getSelectedFile();
+                    label_essayFile.setText(f.getName());
+                    loadFileText(f,true);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }else{
                 return;
             }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_button_essayFileActionPerformed
 
     private void button_bibFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_bibFileActionPerformed
@@ -609,8 +612,20 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     private javax.swing.JTextField text_teacher;
     // End of variables declaration//GEN-END:variables
 
-    private void loadFileText(File f, boolean e) {
-        XWPFDocument docx;
-        System.out.println("done");
+    private void loadFileText(File f, boolean e) throws FileNotFoundException, IOException {
+        
+        if(editor_essayText.getText() != null)
+            essay =  editor_essayText.getText();
+         
+        
+        XWPFDocument docx = new XWPFDocument(new FileInputStream(f));
+        XWPFWordExtractor ext = new XWPFWordExtractor(docx);
+        
+        if (f != null){
+            if(e)
+                essay = ext.getText();
+            else
+                bibliography = ext.getText();
+        }
     }
 }
