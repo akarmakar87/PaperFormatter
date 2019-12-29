@@ -53,6 +53,10 @@
   </Layout>
   <SubComponents>
     <Container class="javax.swing.JTabbedPane" name="tabbedPane">
+      <Events>
+        <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="tabbedPaneComponentShown"/>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="tabbedPaneFocusGained"/>
+      </Events>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
@@ -103,7 +107,12 @@
                               <Component id="label_bibFile" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace min="0" pref="297" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="63" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="button_sources" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -138,7 +147,9 @@
                           <Component id="jScrollPane1" pref="346" max="32767" attributes="0"/>
                           <Component id="jScrollPane2" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                      <Component id="button_sources" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -148,7 +159,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel3">
               <Properties>
-                <Property name="text" type="java.lang.String" value="OR      Paste Text:"/>
+                <Property name="text" type="java.lang.String" value="Paper Text:"/>
               </Properties>
             </Component>
             <Container class="javax.swing.JScrollPane" name="jScrollPane1">
@@ -180,7 +191,7 @@
             </Container>
             <Component class="javax.swing.JLabel" name="jLabel5">
               <Properties>
-                <Property name="text" type="java.lang.String" value="OR      Paste Text:"/>
+                <Property name="text" type="java.lang.String" value="Reference Text :"/>
               </Properties>
             </Component>
             <Component class="java.awt.Button" name="button_bibFile">
@@ -201,7 +212,7 @@
             </Component>
             <Component class="java.awt.Label" name="label_essayFile">
               <Properties>
-                <Property name="text" type="java.lang.String" value="label1"/>
+                <Property name="text" type="java.lang.String" value="---"/>
               </Properties>
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="file name"/>
@@ -209,8 +220,16 @@
             </Component>
             <Component class="java.awt.Label" name="label_bibFile">
               <Properties>
-                <Property name="text" type="java.lang.String" value="label2"/>
+                <Property name="text" type="java.lang.String" value="---"/>
               </Properties>
+            </Component>
+            <Component class="java.awt.Button" name="button_sources">
+              <Properties>
+                <Property name="label" type="java.lang.String" value="Continue"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="button_sourcesActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -237,7 +256,7 @@
                               <Component id="radio_APA" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="radio_MLA" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="734" max="32767" attributes="0"/>
+                              <EmptySpace pref="500" max="32767" attributes="0"/>
                           </Group>
                           <Component id="jScrollPane4" max="32767" attributes="0"/>
                       </Group>
@@ -393,7 +412,7 @@
                           </Group>
                           <Component id="button_generateFinal" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="439" max="32767" attributes="0"/>
+                      <EmptySpace pref="205" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

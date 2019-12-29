@@ -14,6 +14,7 @@ import javax.swing.JFileChooser;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Scanner;
+import javax.swing.JTabbedPane;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -44,7 +45,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     
     public MainWindowFormatter() {
         initComponents();
-        
+               
         essay = "";
         bibliography = "";
         name = "";
@@ -78,6 +79,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         button_essayFile = new java.awt.Button();
         label_essayFile = new java.awt.Label();
         label_bibFile = new java.awt.Label();
+        button_sources = new java.awt.Button();
         pane_simulator = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         table_sources = new javax.swing.JTable();
@@ -112,7 +114,18 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel3.setText("OR      Paste Text:");
+        tabbedPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                tabbedPaneComponentShown(evt);
+            }
+        });
+        tabbedPane.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                tabbedPaneFocusGained(evt);
+            }
+        });
+
+        jLabel3.setText("Paper Text:");
 
         editor_essayText.addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -133,7 +146,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
         jScrollPane2.setViewportView(editor_bibText);
 
-        jLabel5.setText("OR      Paste Text:");
+        jLabel5.setText("Reference Text :");
 
         button_bibFile.setLabel("Upload References (Word Document): ");
         button_bibFile.addActionListener(new java.awt.event.ActionListener() {
@@ -149,9 +162,16 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             }
         });
 
-        label_essayFile.setText("label1");
+        label_essayFile.setText("---");
 
-        label_bibFile.setText("label2");
+        label_bibFile.setText("---");
+
+        button_sources.setLabel("Continue");
+        button_sources.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_sourcesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pane_filesLayout = new javax.swing.GroupLayout(pane_files);
         pane_files.setLayout(pane_filesLayout);
@@ -183,7 +203,11 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                         .addComponent(button_bibFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(label_bibFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 297, Short.MAX_VALUE))
+                .addGap(0, 63, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pane_filesLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(button_sources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         pane_filesLayout.setVerticalGroup(
             pane_filesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -209,7 +233,9 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                 .addGroup(pane_filesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
                     .addComponent(jScrollPane2))
-                .addGap(58, 58, 58))
+                .addGap(24, 24, 24)
+                .addComponent(button_sources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         label_essayFile.getAccessibleContext().setAccessibleName("file name");
@@ -274,7 +300,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                         .addComponent(radio_APA)
                         .addGap(18, 18, 18)
                         .addComponent(radio_MLA)
-                        .addContainerGap(734, Short.MAX_VALUE))
+                        .addContainerGap(500, Short.MAX_VALUE))
                     .addComponent(jScrollPane4)))
         );
         pane_simulatorLayout.setVerticalGroup(
@@ -394,7 +420,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                                     .addComponent(text_teacher, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(jLabel15)))
                     .addComponent(button_generateFinal))
-                .addContainerGap(439, Short.MAX_VALUE))
+                .addContainerGap(205, Short.MAX_VALUE))
         );
         pane_simulator1Layout.setVerticalGroup(
             pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -450,7 +476,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
+            .addComponent(tabbedPane)
         );
 
         pack();
@@ -465,7 +491,6 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     }//GEN-LAST:event_radio_APAActionPerformed
 
     private void button_essayFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_essayFileActionPerformed
-        
         try {            
             File f;
             JFileChooser jfc = new JFileChooser();
@@ -478,8 +503,6 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }else{
-                return;
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
@@ -489,7 +512,24 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     }//GEN-LAST:event_button_essayFileActionPerformed
 
     private void button_bibFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_bibFileActionPerformed
-        // TODO add your handling code here:
+        try {            
+            File f;
+            JFileChooser jfc = new JFileChooser();
+            
+            if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+                try {
+                    f = jfc.getSelectedFile();
+                    label_bibFile.setText(f.getName());
+                    loadFileText(f,false);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_button_bibFileActionPerformed
 
     private void radio_wordDocActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radio_wordDocActionPerformed
@@ -528,8 +568,24 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
     private void editor_essayTextFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_editor_essayTextFocusGained
         // TODO add your handling code here:
-        System.out.println("something changed");
+        System.out.println("text: " + editor_essayText.getText());
+        if(editor_essayText.getText() != null)
+            essay =  editor_essayText.getText();
     }//GEN-LAST:event_editor_essayTextFocusGained
+
+    private void button_sourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_sourcesActionPerformed
+        // TODO add your handling code here:
+        essay = editor_essayText.getText();
+        bibliography = editor_bibText.getText();
+    }//GEN-LAST:event_button_sourcesActionPerformed
+
+    private void tabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_tabbedPaneComponentShown
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_tabbedPaneComponentShown
+
+    private void tabbedPaneFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tabbedPaneFocusGained
+    }//GEN-LAST:event_tabbedPaneFocusGained
 
     /**
      * @param args the command line arguments
@@ -573,6 +629,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     private javax.swing.JButton button_generateFinal;
     private javax.swing.JButton button_save;
     private javax.swing.JButton button_saveAs;
+    private java.awt.Button button_sources;
     private javax.swing.JEditorPane editor_bibText;
     private javax.swing.JEditorPane editor_essayText;
     private javax.swing.JEditorPane editor_finalText;
@@ -613,19 +670,20 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void loadFileText(File f, boolean e) throws FileNotFoundException, IOException {
-        
-        if(editor_essayText.getText() != null)
-            essay =  editor_essayText.getText();
-         
-        
+                
         XWPFDocument docx = new XWPFDocument(new FileInputStream(f));
         XWPFWordExtractor ext = new XWPFWordExtractor(docx);
         
         if (f != null){
-            if(e)
+            if(e){
                 essay = ext.getText();
-            else
+                editor_essayText.setText(essay);
+                editor_sourcesText.setText(essay);
+            }else{
                 bibliography = ext.getText();
+                editor_bibText.setText(bibliography);
+            }
         }
+        System.out.println(ext.getText());
     }
 }
