@@ -686,4 +686,10 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         }
         System.out.println(ext.getText());
     }
+    
+    private void loadSources(){
+        Scanner sc = new Scanner(bibliography);
+        
+        
+    }
 }
