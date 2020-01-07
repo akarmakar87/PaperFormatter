@@ -41,7 +41,6 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
     TreeSet<Quotes> quotes;
     TreeSet<Source> sources;
-
     
     public MainWindowFormatter() {
         initComponents();
