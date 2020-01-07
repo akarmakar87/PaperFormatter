@@ -44,7 +44,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     
     public MainWindowFormatter() {
         initComponents();
-               
+        loadSources();
         essay = "";
         bibliography = "";
         name = "";
@@ -564,14 +564,16 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         // TODO add your handling code here:
         
     }//GEN-LAST:event_editor_essayTextComponentAdded
-
+    
+    
     private void editor_essayTextFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_editor_essayTextFocusGained
         // TODO add your handling code here:
-        System.out.println("text: " + editor_essayText.getText());
+        /*System.out.println("text: " + editor_essayText.getText());
         if(editor_essayText.getText() != null)
-            essay =  editor_essayText.getText();
+            essay =  editor_essayText.getText();*/
     }//GEN-LAST:event_editor_essayTextFocusGained
-
+    
+    
     private void button_sourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_sourcesActionPerformed
         // TODO add your handling code here:
         essay = editor_essayText.getText();
@@ -687,8 +689,16 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     }
     
     private void loadSources(){
-        Scanner sc = new Scanner(bibliography);
+        //Scanner sc = new Scanner(bibliography);
+        String test = "Abcd";
+        if(test.matches("/w")){
+            System.out.println("matches regex");
+        }else{
+            System.out.println("doesn't match");
+        }
         
-        
+        // Nordhaus, William D. 
+        // Capital letter word + nonwhitespace character + Capital letter word + Single Character(?) + line terminator
+        // regex expression: 
     }
 }
