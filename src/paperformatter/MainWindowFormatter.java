@@ -13,7 +13,11 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JTabbedPane;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -44,7 +48,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     
     public MainWindowFormatter() {
         initComponents();
-        loadSources();
+        //loadSources();
         essay = "";
         bibliography = "";
         name = "";
@@ -520,6 +524,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                     f = jfc.getSelectedFile();
                     label_bibFile.setText(f.getName());
                     loadFileText(f,false);
+                    loadSources();
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -689,12 +694,23 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     }
     
     private void loadSources(){
-        //Scanner sc = new Scanner(bibliography);
-        String test = "Abcd";
-        if(test.matches("/w")){
-            System.out.println("matches regex");
-        }else{
-            System.out.println("doesn't match");
+         
+        Pattern p1 = Pattern.compile("([a-zA-Z]+)(\\W) ([a-zA-Z]+)\\.");
+        Pattern p2 = Pattern.compile("([a-zA-Z]+)(\\W) ([a-zA-Z]+)\\s[A-Z]\\.");
+        
+        Matcher matcher1 = p1.matcher(bibliography);
+        Matcher matcher2 = p2.matcher(bibliography);
+        
+        List<String> matches = new ArrayList<String>();
+        
+        while(matcher1.find()){
+            matches.add(matcher1.group());
+            System.out.println(matcher1.group());
+        }
+        
+        while(matcher2.find()){
+            matches.add(matcher2.group());
+            System.out.println(matcher2.group());
         }
         
         // Nordhaus, William D. 
