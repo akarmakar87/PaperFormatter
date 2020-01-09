@@ -713,6 +713,13 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             System.out.println(matcher2.group());
         }
         
+        String test = "Nordhaus, Will D.";
+        if(test.matches("([a-zA-Z]+)(\\W) [A-Z]([a-zA-Z]+)\\.")){
+            System.out.println("matches regex");
+        }else{
+            System.out.println("doesn't match");
+        }
+        
         // Nordhaus, William D. 
         // Capital letter word + nonwhitespace character + Capital letter word + Single Character(?) + line terminator
         // regex expression: 
