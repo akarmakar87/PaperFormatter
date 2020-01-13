@@ -9,6 +9,6 @@ package paperformatter;
  *
  * @author Asha Karmakar
  */
-class Quotes {
+class Quote {
     
 }

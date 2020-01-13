@@ -43,7 +43,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     String teacher;
     String date;
 
-    TreeSet<Quotes> quotes;
+    TreeSet<Quote> quotes;
     TreeSet<Source> sources;
     
     public MainWindowFormatter() {
@@ -694,14 +694,16 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     }
     
     private void loadSources(){
-         
-        Pattern p1 = Pattern.compile("([a-zA-Z]+)(\\W) ([a-zA-Z]+)\\.");
-        Pattern p2 = Pattern.compile("([a-zA-Z]+)(\\W) ([a-zA-Z]+)\\s[A-Z]\\.");
+        /* 
+        Pattern p1 = Pattern.compile("[A-Z]([a-z]+)(\\W) [A-Z]([a-z]+)\\."); //Nordhaus, William. 
+        Pattern p2 = Pattern.compile("[A-Z]([a-z]+)(\\W) [A-Z]([a-z]+)\\s[A-Z]\\."); //Nordhaus, William D. 
+        Pattern p3 = Pattern.compile(""); //
+        Pattern p4 = Pattern.compile(""); //Milken, Michael, et al.
         
         Matcher matcher1 = p1.matcher(bibliography);
         Matcher matcher2 = p2.matcher(bibliography);
         
-        List<String> matches = new ArrayList<String>();
+        List<String> matches = new ArrayList<>();
         
         while(matcher1.find()){
             matches.add(matcher1.group());
@@ -713,12 +715,22 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             System.out.println(matcher2.group());
         }
         
-        String test = "Nordhaus, Will D.";
-        if(test.matches("([a-zA-Z]+)(\\W) [A-Z]([a-zA-Z]+)\\.")){
+        String test = "Nordhaus, will D.";
+        if(test.matches("[A-Z]([a-z]+)(\\W) [A-Z]([a-z]+)\\s[A-Z]\\.")){
             System.out.println("matches regex");
         }else{
             System.out.println("doesn't match");
         }
+        */
+        
+        
+        
+        String[] pgs = bibliography.split("(?=\n[A-Z])");
+        for(String p: pgs){
+            sources.add(new Source(p));
+            System.out.println("start: " + p + " :end");
+        }
+        
         
         // Nordhaus, William D. 
         // Capital letter word + nonwhitespace character + Capital letter word + Single Character(?) + line terminator
