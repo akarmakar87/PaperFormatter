@@ -5,6 +5,8 @@
  */
 package paperformatter;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Asha Karmakar
@@ -16,8 +18,59 @@ class Source {
     String title;
     String location;
 
-    Source(String p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Source() {
+        this.entry = "";
+        this.authors = "";
+        this.title = "";
+        this.location = "";
+    }
+    
+    public Source(String entry, String authors, String title, String location) {
+        this.entry = entry;
+        this.authors = authors;
+        this.title = title;
+        this.location = location;
+    }
+    
+    public Source(String entry) {
+        this.entry = entry;
+    }      
+
+    public String getEntry() {
+        return entry;
+    }
+
+    public void setEntry(String entry) {
+        this.entry = entry;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(String authors) {
+        this.authors = authors;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
+    @Override
+    public String toString(){
+        return "S: " + entry + " :E\n";
     }
     
 }
