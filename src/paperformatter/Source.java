@@ -13,10 +13,10 @@ import java.io.Serializable;
  */
 class Source {
     
-    String entry;
-    String authors;
-    String title;
-    String location;
+    private String entry;
+    private String authors;
+    private String title;
+    private String location;
 
     public Source() {
         this.entry = "";
@@ -45,6 +45,8 @@ class Source {
     }
 
     public String getAuthors() {
+        int first = entry.indexOf(".");
+        authors = entry.substring(0, first+1);
         return authors;
     }
 
