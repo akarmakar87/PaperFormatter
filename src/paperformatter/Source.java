@@ -70,6 +70,13 @@ class Source {
         this.location = location;
     }
     
+    public void clear(){
+        entry = null;
+        authors = null;
+        title = null;
+        location = null;
+    }
+    
     @Override
     public String toString(){
         return "S: " + entry + " :E\n";
