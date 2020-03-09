@@ -5,6 +5,10 @@
  */
 package paperformatter;
 
+import java.awt.MouseInfo;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.TreeSet;
@@ -12,14 +16,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -44,12 +56,18 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     String teacher;
     String date;
 
-    TreeSet<Quote> quotes;
-    ArrayList<Source> sources;
+    ArrayList<Quote> quotes;
+    final ArrayList<Source> sources;
+    String[] elements;
+    
+    JPopupMenu popupMenu = new JPopupMenu();
+    //JSpinner popupMenu = new JSpinner();
+    JMenuItem menuItem;
+    
+    Source currSource;
     
     public MainWindowFormatter() {
         initComponents();
-        //loadSources();
         essay = "";
         bibliography = "";
         name = "";
@@ -57,7 +75,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         teacher = "";
         date = "";       
         
-        quotes = new TreeSet<Quote>();
+        quotes = new ArrayList<Quote>();
         sources = new ArrayList<Source>();
     }
 
@@ -92,11 +110,9 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         table_sources = new javax.swing.JTable();
         jScrollPane4 = new javax.swing.JScrollPane();
         editor_sourcesText = new javax.swing.JEditorPane();
-        jLabel9 = new javax.swing.JLabel();
-        radio_APA = new javax.swing.JRadioButton();
-        radio_MLA = new javax.swing.JRadioButton();
         button_backSources = new java.awt.Button();
         button_continueSources = new java.awt.Button();
+        jLabel1 = new javax.swing.JLabel();
         pane_simulator1 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
         editor_finalText = new javax.swing.JEditorPane();
@@ -105,15 +121,13 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         radio_PDF = new javax.swing.JRadioButton();
         radio_wordDoc = new javax.swing.JRadioButton();
         jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         text_studentName = new javax.swing.JTextField();
-        text_class = new javax.swing.JTextField();
-        text_period = new javax.swing.JTextField();
         text_teacher = new javax.swing.JTextField();
+        text_class = new javax.swing.JTextField();
         text_date = new javax.swing.JTextField();
         button_generateFinal = new javax.swing.JButton();
         button_backFormat = new java.awt.Button();
@@ -218,7 +232,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                                 .addComponent(button_bibFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(label_bibFile, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(0, 24, Short.MAX_VALUE))
+                .addGap(0, 46, Short.MAX_VALUE))
         );
         pane_filesLayout.setVerticalGroup(
             pane_filesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -272,24 +286,21 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             }
         });
         jScrollPane3.setViewportView(table_sources);
+        if (table_sources.getColumnModel().getColumnCount() > 0) {
+            table_sources.getColumnModel().getColumn(2).setHeaderValue("Quote");
+        }
 
+        editor_sourcesText.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                editor_sourcesTextMouseClicked(evt);
+            }
+        });
+        editor_sourcesText.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                editor_sourcesTextFocusGained(evt);
+            }
+        });
         jScrollPane4.setViewportView(editor_sourcesText);
-
-        jLabel9.setText("In-text Citations:");
-
-        radio_APA.setLabel("APA");
-        radio_APA.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radio_APAActionPerformed(evt);
-            }
-        });
-
-        radio_MLA.setText("MLA");
-        radio_MLA.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radio_MLAActionPerformed(evt);
-            }
-        });
 
         button_backSources.setLabel("Back");
         button_backSources.addActionListener(new java.awt.event.ActionListener() {
@@ -305,6 +316,8 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setText("Place your cursor where you want to insert a citation, then right-click and select the source you want to cite.");
+
         javax.swing.GroupLayout pane_simulatorLayout = new javax.swing.GroupLayout(pane_simulator);
         pane_simulator.setLayout(pane_simulatorLayout);
         pane_simulatorLayout.setHorizontalGroup(
@@ -312,19 +325,15 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             .addGroup(pane_simulatorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pane_simulatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3)
+                    .addGroup(pane_simulatorLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 983, Short.MAX_VALUE)
                     .addGroup(pane_simulatorLayout.createSequentialGroup()
                         .addComponent(button_backSources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(button_continueSources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(pane_simulatorLayout.createSequentialGroup()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 825, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pane_simulatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel9)
-                            .addComponent(radio_MLA)
-                            .addComponent(radio_APA))
-                        .addGap(0, 42, Short.MAX_VALUE)))
+                    .addComponent(jScrollPane4))
                 .addContainerGap())
         );
         pane_simulatorLayout.setVerticalGroup(
@@ -332,22 +341,14 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             .addGroup(pane_simulatorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel1)
+                .addGap(10, 10, 10)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 503, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 453, Short.MAX_VALUE)
                 .addGroup(pane_simulatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pane_simulatorLayout.createSequentialGroup()
-                        .addGap(241, 241, 241)
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(radio_MLA)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(radio_APA)
-                        .addGap(0, 710, Short.MAX_VALUE))
-                    .addGroup(pane_simulatorLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 535, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(pane_simulatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(button_backSources, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(button_continueSources, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addComponent(button_backSources, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button_continueSources, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -385,30 +386,25 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
         jLabel11.setText("Enter Heading Information:");
 
-        jLabel12.setText("Student Name:");
+        jLabel13.setText("Name:");
 
-        jLabel13.setText("Class:");
+        jLabel14.setText("Teacher:");
 
-        jLabel14.setText("Period:");
-
-        jLabel15.setText("Teacher:");
+        jLabel15.setText("Class:");
 
         jLabel16.setText("Date:");
 
-        text_studentName.setText("jTextField1");
-
-        text_class.setText("jTextField2");
-        text_class.addActionListener(new java.awt.event.ActionListener() {
+        text_teacher.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                text_classActionPerformed(evt);
+                text_teacherActionPerformed(evt);
             }
         });
 
-        text_period.setText("jTextField2");
-
-        text_teacher.setText("jTextField2");
-
-        text_date.setText("jTextField2");
+        text_date.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                text_dateActionPerformed(evt);
+            }
+        });
 
         button_generateFinal.setText("Generate Final Paper");
         button_generateFinal.addActionListener(new java.awt.event.ActionListener() {
@@ -448,23 +444,17 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                             .addComponent(jLabel11)
                             .addGroup(pane_simulator1Layout.createSequentialGroup()
                                 .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(pane_simulator1Layout.createSequentialGroup()
-                                        .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel13)
-                                            .addComponent(jLabel14)
-                                            .addComponent(jLabel16))
-                                        .addGap(42, 42, 42))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pane_simulator1Layout.createSequentialGroup()
-                                        .addComponent(jLabel12)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                                .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(text_date, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(text_period, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(text_class, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(text_studentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(text_teacher, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(jLabel13)
+                                    .addComponent(jLabel14)
+                                    .addComponent(jLabel16))
+                                .addGap(49, 49, 49)
+                                .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(text_date, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                                    .addComponent(text_teacher)
+                                    .addComponent(text_class)
+                                    .addComponent(text_studentName)))
                             .addComponent(jLabel15))))
-                .addContainerGap(191, Short.MAX_VALUE))
+                .addContainerGap(183, Short.MAX_VALUE))
         );
         pane_simulator1Layout.setVerticalGroup(
             pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -474,8 +464,8 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 382, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pane_simulator1Layout.createSequentialGroup()
+                        .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pane_simulator1Layout.createSequentialGroup()
                                 .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(button_saveAs)
@@ -484,34 +474,31 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                                 .addComponent(radio_wordDoc)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(radio_PDF))
-                            .addGroup(pane_simulator1Layout.createSequentialGroup()
-                                .addGap(49, 49, 49)
-                                .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(text_class, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(text_period, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(text_teacher, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(text_date, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pane_simulator1Layout.createSequentialGroup()
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 3, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel11)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(text_studentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(109, 109, 109))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(pane_simulator1Layout.createSequentialGroup()
+                                    .addGap(44, 44, 44)
+                                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(text_teacher, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(text_class, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pane_simulator1Layout.createSequentialGroup()
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 3, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel11)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(text_studentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(81, 81, 81))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(pane_simulator1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(text_date, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(211, 211, 211)))
                 .addComponent(button_backFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(758, Short.MAX_VALUE))
+                .addContainerGap(755, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Format", pane_simulator1);
@@ -529,14 +516,6 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void radio_MLAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radio_MLAActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radio_MLAActionPerformed
-
-    private void radio_APAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radio_APAActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radio_APAActionPerformed
 
     private void button_essayFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_essayFileActionPerformed
         try {            
@@ -596,12 +575,43 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_button_saveAsActionPerformed
 
-    private void text_classActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_classActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_text_classActionPerformed
-
     private void button_generateFinalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_generateFinalActionPerformed
-        // TODO add your handling code here:
+        essay = editor_sourcesText.getText();
+        name = text_studentName.getText();
+        teacher = text_teacher.getText();
+        className = text_class.getText();
+        date = text_date.getText();
+        
+        String finalEssay = 
+                name + "\n" +
+                teacher + "\n" +
+                className + "\n" +
+                date + "\n" +
+                essay;
+        
+        editor_finalText.setText(finalEssay);
+        
+        FileOutputStream out = null; 
+        try {
+            //Blank Document
+            XWPFDocument document = new XWPFDocument();
+            //Write the Document in file system
+            out = new FileOutputStream( new File("createdocument.docx"));
+            document.write(out);
+            out.close();
+            System.out.println("createdocument.docx written successully");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ex) {
+                Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
     }//GEN-LAST:event_button_generateFinalActionPerformed
 
     private void editor_essayTextPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_editor_essayTextPropertyChange
@@ -628,7 +638,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         essay = editor_essayText.getText();
         bibliography = editor_bibText.getText();
         loadSources();
-        loadQuotes();
+        //loadQuotes();
         tabbedPane.setSelectedIndex(1);        
     }//GEN-LAST:event_button_continueFilesActionPerformed
 
@@ -655,6 +665,29 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         // TODO add your handling code here:
         tabbedPane.setSelectedIndex(1);   
     }//GEN-LAST:event_button_backFormatActionPerformed
+
+    private void editor_sourcesTextFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_editor_sourcesTextFocusGained
+       
+    }//GEN-LAST:event_editor_sourcesTextFocusGained
+
+    private void editor_sourcesTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editor_sourcesTextMouseClicked
+        // TODO add your handling code here:
+
+        if(evt.getButton() == MouseEvent.BUTTON3){
+            System.out.println("clicked");
+            popupMenu.setVisible(true);
+            popupMenu.show(this, MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
+            System.out.println("showing");
+        }
+    }//GEN-LAST:event_editor_sourcesTextMouseClicked
+
+    private void text_dateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_dateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_text_dateActionPerformed
+
+    private void text_teacherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_teacherActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_text_teacherActionPerformed
 
     /**
      * @param args the command line arguments
@@ -706,8 +739,8 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     private javax.swing.JEditorPane editor_essayText;
     private javax.swing.JEditorPane editor_finalText;
     private javax.swing.JEditorPane editor_sourcesText;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
@@ -715,7 +748,6 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -728,15 +760,12 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     private javax.swing.JPanel pane_files;
     private javax.swing.JPanel pane_simulator;
     private javax.swing.JPanel pane_simulator1;
-    private javax.swing.JRadioButton radio_APA;
-    private javax.swing.JRadioButton radio_MLA;
     private javax.swing.JRadioButton radio_PDF;
     private javax.swing.JRadioButton radio_wordDoc;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JTable table_sources;
     private javax.swing.JTextField text_class;
     private javax.swing.JTextField text_date;
-    private javax.swing.JTextField text_period;
     private javax.swing.JTextField text_studentName;
     private javax.swing.JTextField text_teacher;
     // End of variables declaration//GEN-END:variables
@@ -745,6 +774,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                 
         XWPFDocument docx = new XWPFDocument(new FileInputStream(f));
         XWPFWordExtractor ext = new XWPFWordExtractor(docx);
+       // ext.
         
         if (f != null){
             if(e){
@@ -792,6 +822,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         
         //SPLIT THE BIBLIOGRAPHY AND STORE ALL SOURCES IN ARRAYLIST
         String[] pgs = bibliography.split("(?=\n[A-Z])");
+        //System.out.println(pgs);
         sources.clear();
         for(String p: pgs){
             sources.add(new Source(p.trim()));
@@ -816,6 +847,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             model.addRow(content);
             i++;
         }
+        createPopupMenu(this);
         
         //System.out.println(sources.toString());
         // Nordhaus, William D. 
@@ -825,11 +857,49 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     
     private void loadQuotes(){
         
-        String[] qgs = essay.split("\"");
-        System.out.println("here fool:");
-        for(String q: qgs){
-            System.out.println("S: " + q + " :E");
+        //String[] qgs = essay.split("“|”");
+        Scanner sc = new Scanner(essay);
+        String q = "";
+        for (String w: essay.split(".")){
+            //System.out.println("word " + w);
         }
         
+        /*Pattern p = Pattern.compile(("“([^\"]*)”"));
+        Matcher m = p.matcher(essay);
+        System.out.println("here fool:");
+        while(m.find()){
+            System.out.println("S: " + m.group(1) + " :E");
+            quotes.add(new Quote(m.group(1)));
+        }*/
+        
+    }
+    
+    private void createPopupMenu(JFrame frame){
+        System.out.println("created");
+        for(int i = 0; i < sources.size(); i++){
+            menuItem = new JMenuItem("Source " + i);
+            menuItem.getAccessibleContext().setAccessibleDescription("" + (i+1));
+            final Source currSource = sources.get(i);
+            //System.out.println("currSource " + i + " = " + currSource.getEntry());
+            menuItem.addActionListener((ActionEvent e) -> {
+                try {        
+                    createCitation(currSource);
+                    System.out.println("citation made with " + currSource.getEntry());
+                } catch (BadLocationException ex) {
+                    Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+            popupMenu.add(menuItem);
+        }
+    }
+    
+    private void createCitation(Source s) throws BadLocationException{
+        String citation = " (" + s.getAuthors() + ")";
+        System.out.println("title: " + s.getTitle());
+        System.out.println("is website: " + s.isWebsite());
+        System.out.println("date: " + s.getDate());
+        StringBuilder str = new StringBuilder(editor_sourcesText.getText());   
+        str.insert(editor_sourcesText.getCaretPosition(), citation); 
+        editor_sourcesText.setText(str.toString());
     }
 }

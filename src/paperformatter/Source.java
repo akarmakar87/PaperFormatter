@@ -6,6 +6,8 @@
 package paperformatter;
 
 import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -16,20 +18,20 @@ class Source {
     private String entry;
     private String authors;
     private String title;
-    private String location;
+    private String url;
 
     public Source() {
         this.entry = "";
         this.authors = "";
         this.title = "";
-        this.location = "";
+        this.url = "";
     }
     
-    public Source(String entry, String authors, String title, String location) {
+    public Source(String entry, String authors, String title, String url) {
         this.entry = entry;
         this.authors = authors;
         this.title = title;
-        this.location = location;
+        this.url = url;
     }
     
     public Source(String entry) {
@@ -45,8 +47,14 @@ class Source {
     }
 
     public String getAuthors() {
-        int first = entry.indexOf(".");
-        authors = entry.substring(0, first+1);
+        if(entry.contains("et. al")){
+           int first = entry.indexOf(".");
+           authors = entry.substring(0, first+1);
+        }else{
+           int first = entry.indexOf(",");
+           authors = entry.substring(0, first+1);
+        }
+        
         return authors;
     }
 
@@ -55,26 +63,45 @@ class Source {
     }
 
     public String getTitle() {
+        if (!authors.contains(",")){
+            title = authors;
+            authors = null;
+        }else{
+            try {
+                title = entry.split("\"")[1];
+            }catch(ArrayIndexOutOfBoundsException e){
+                
+            }
+            
+        }
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
-
-    public String getLocation() {
-        return location;
+    
+    public boolean isWebsite(){
+        if (entry.contains("www.")){
+            return true;
+        }else{
+            return false;
+        }
     }
-
-    public void setLocation(String location) {
-        this.location = location;
+    
+    public String getDate(){
+        String date = "";
+        Pattern p = Pattern.compile(("[0-9]"));
+            Matcher m = p.matcher(entry);
+            System.out.println("matcher to string: " + m.toString());
+        return date;
     }
     
     public void clear(){
         entry = null;
         authors = null;
         title = null;
-        location = null;
+        url = null;
     }
     
     @Override
