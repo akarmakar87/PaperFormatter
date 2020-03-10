@@ -49,13 +49,12 @@ class Source {
     public String getAuthors() {
         if(entry.contains("et. al")){
            int first = entry.indexOf(".");
-           authors = entry.substring(0, first+1);
+           authors = entry.substring(0, first);
         }else{
            int first = entry.indexOf(",");
-           authors = entry.substring(0, first+1);
+           authors = entry.substring(0, first);
         }
-        
-        return authors;
+        return authors;        
     }
 
     public void setAuthors(String authors) {

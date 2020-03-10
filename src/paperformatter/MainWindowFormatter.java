@@ -5,6 +5,7 @@
  */
 package paperformatter;
 
+import static java.awt.Color.BLACK;
 import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +19,7 @@ import javax.swing.JFileChooser;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -32,8 +34,18 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
+import org.apache.poi.wp.usermodel.HeaderFooterType;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFHeader;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import static org.openxmlformats.schemas.drawingml.x2006.chart.STLblAlgn.CTR;
+import static org.openxmlformats.schemas.drawingml.x2006.main.STPenAlignment.CTR;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
 
 
 //import org.apache.poi.*;
@@ -51,10 +63,11 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     String essay; 
     String bibliography; 
     
-    String name;
-    String className;
-    String teacher;
-    String date;
+    String title = "Untitled";
+    String name = "Name";
+    String className = "Class";
+    String teacher = "Teacher";
+    String date = "Date";
 
     ArrayList<Quote> quotes;
     final ArrayList<Source> sources;
@@ -138,14 +151,14 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        tabbedPane.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                tabbedPaneFocusGained(evt);
-            }
-        });
         tabbedPane.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 tabbedPaneComponentShown(evt);
+            }
+        });
+        tabbedPane.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                tabbedPaneFocusGained(evt);
             }
         });
 
@@ -325,15 +338,15 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             .addGroup(pane_simulatorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pane_simulatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3)
+                    .addComponent(jScrollPane4)
                     .addGroup(pane_simulatorLayout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 983, Short.MAX_VALUE)
-                    .addGroup(pane_simulatorLayout.createSequentialGroup()
+                        .addGap(0, 406, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pane_simulatorLayout.createSequentialGroup()
                         .addComponent(button_backSources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(button_continueSources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane4))
+                        .addComponent(button_continueSources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         pane_simulatorLayout.setVerticalGroup(
@@ -344,12 +357,12 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1)
                 .addGap(10, 10, 10)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 503, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 453, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pane_simulatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button_backSources, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button_continueSources, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                    .addComponent(button_continueSources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button_backSources, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Sources", pane_simulator);
@@ -498,7 +511,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                             .addComponent(text_date, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(211, 211, 211)))
                 .addComponent(button_backFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(755, Short.MAX_VALUE))
+                .addContainerGap(209, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Format", pane_simulator1);
@@ -511,7 +524,9 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 710, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 543, Short.MAX_VALUE))
         );
 
         pack();
@@ -573,6 +588,37 @@ public class MainWindowFormatter extends javax.swing.JFrame {
 
     private void button_saveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_saveAsActionPerformed
         // TODO add your handling code here:
+        FileOutputStream out = null; 
+        try {
+            //Blank Document
+            XWPFDocument document = createDocument();
+            //Write the Document in file system
+            File nf = new File(title + ".docx");
+            out = new FileOutputStream(nf) ;
+            document.write(out);
+            out.close();
+            System.out.println("created file");
+            System.out.println("doc location: " + nf.getPath());
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        
+        /*
+        JFileChooser jfc = new JFileChooser();
+            
+        jfc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+            
+        if(jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION){
+            try {
+                FileOutputStream fos = new FileOutputStream(());            
+            
+            } catch (FileNotFoundException ex) {
+                
+            } 
+        }     
+        */
     }//GEN-LAST:event_button_saveAsActionPerformed
 
     private void button_generateFinalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_generateFinalActionPerformed
@@ -582,6 +628,10 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         className = text_class.getText();
         date = text_date.getText();
         
+        Scanner sc = new Scanner(editor_sourcesText.getText());
+        title = sc.nextLine();
+        System.out.println("title: " + title);
+        
         String finalEssay = 
                 name + "\n" +
                 teacher + "\n" +
@@ -589,29 +639,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                 date + "\n" +
                 essay;
         
-        editor_finalText.setText(finalEssay);
-        
-        FileOutputStream out = null; 
-        try {
-            //Blank Document
-            XWPFDocument document = new XWPFDocument();
-            //Write the Document in file system
-            out = new FileOutputStream( new File("createdocument.docx"));
-            document.write(out);
-            out.close();
-            System.out.println("createdocument.docx written successully");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                out.close();
-            } catch (IOException ex) {
-                Logger.getLogger(MainWindowFormatter.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        
+        editor_finalText.setText(finalEssay);        
     }//GEN-LAST:event_button_generateFinalActionPerformed
 
     private void editor_essayTextPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_editor_essayTextPropertyChange
@@ -637,6 +665,7 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         // TODO add your handling code here:
         essay = editor_essayText.getText();
         bibliography = editor_bibText.getText();
+        editor_sourcesText.setText(editor_essayText.getText());
         loadSources();
         //loadQuotes();
         tabbedPane.setSelectedIndex(1);        
@@ -650,24 +679,32 @@ public class MainWindowFormatter extends javax.swing.JFrame {
     private void tabbedPaneFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tabbedPaneFocusGained
     }//GEN-LAST:event_tabbedPaneFocusGained
 
-    private void button_backSourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_backSourcesActionPerformed
-        // TODO add your handling code here:
-        tabbedPane.setSelectedIndex(0);   
-    }//GEN-LAST:event_button_backSourcesActionPerformed
-
-    private void button_continueSourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_continueSourcesActionPerformed
-        // TODO add your handling code here:
-        
-        tabbedPane.setSelectedIndex(2);   
-    }//GEN-LAST:event_button_continueSourcesActionPerformed
-
     private void button_backFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_backFormatActionPerformed
         // TODO add your handling code here:
         tabbedPane.setSelectedIndex(1);   
     }//GEN-LAST:event_button_backFormatActionPerformed
 
+    private void text_dateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_dateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_text_dateActionPerformed
+
+    private void text_teacherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_teacherActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_text_teacherActionPerformed
+
+    private void button_continueSourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_continueSourcesActionPerformed
+        // TODO add your handling code here:
+        editor_finalText.setText(editor_sourcesText.getText());
+        tabbedPane.setSelectedIndex(2);
+    }//GEN-LAST:event_button_continueSourcesActionPerformed
+
+    private void button_backSourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_backSourcesActionPerformed
+        // TODO add your handling code here:
+        tabbedPane.setSelectedIndex(0);
+    }//GEN-LAST:event_button_backSourcesActionPerformed
+
     private void editor_sourcesTextFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_editor_sourcesTextFocusGained
-       
+
     }//GEN-LAST:event_editor_sourcesTextFocusGained
 
     private void editor_sourcesTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editor_sourcesTextMouseClicked
@@ -680,14 +717,6 @@ public class MainWindowFormatter extends javax.swing.JFrame {
             System.out.println("showing");
         }
     }//GEN-LAST:event_editor_sourcesTextMouseClicked
-
-    private void text_dateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_dateActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_text_dateActionPerformed
-
-    private void text_teacherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_teacherActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_text_teacherActionPerformed
 
     /**
      * @param args the command line arguments
@@ -774,13 +803,11 @@ public class MainWindowFormatter extends javax.swing.JFrame {
                 
         XWPFDocument docx = new XWPFDocument(new FileInputStream(f));
         XWPFWordExtractor ext = new XWPFWordExtractor(docx);
-       // ext.
         
         if (f != null){
             if(e){
                 essay = ext.getText();
                 editor_essayText.setText(essay);
-                editor_sourcesText.setText(essay);
             }else{
                 bibliography = ext.getText();
                 editor_bibText.setText(bibliography);
@@ -901,5 +928,57 @@ public class MainWindowFormatter extends javax.swing.JFrame {
         StringBuilder str = new StringBuilder(editor_sourcesText.getText());   
         str.insert(editor_sourcesText.getCaretPosition(), citation); 
         editor_sourcesText.setText(str.toString());
+    }
+
+    private XWPFDocument createDocument() {
+        /*CTSectPr sectPr = d.getDocument().getBody().addNewSectPr();
+        XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(d, sectPr);
+			
+        //write header content
+	CTP ctpHeader = CTP.Factory.newInstance();
+	CTR ctrHeader = ctpHeader.addNewR();
+	CTText ctHeader = ctrHeader.addNewT();
+	String headerText = "This is header";
+	ctHeader.setStringValue(headerText);	
+	XWPFParagraph headerParagraph = new XWPFParagraph(ctpHeader, docx);
+	XWPFParagraph[] parsHeader = new XWPFParagraph[1];
+	parsHeader[0] = headerParagraph;
+	policy.createHeader(XWPFHeaderFooterPolicy.DEFAULT, parsHeader);*/
+        
+        XWPFDocument d = new XWPFDocument();
+        
+        // create header-footer
+        XWPFHeaderFooterPolicy headerFooterPolicy = d.getHeaderFooterPolicy();
+        if (headerFooterPolicy == null) headerFooterPolicy = d.createHeaderFooterPolicy();
+
+        // create header start
+        XWPFHeader header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
+
+        XWPFParagraph left = header.createParagraph();
+        left.setAlignment(ParagraphAlignment.LEFT);
+
+        XWPFRun run = left.createRun();  
+        
+        run.setText(name);
+        run.addBreak();
+        run.setText(teacher);
+        run.addBreak();
+        run.setText(className);
+        run.addBreak();
+        run.setText(date);
+       
+        XWPFParagraph right = header.createParagraph();
+        right.setAlignment(ParagraphAlignment.RIGHT);
+        
+        XWPFRun run2 = right.createRun();  
+        
+        run.setFontFamily("Times New Roman");
+        run.setFontSize(12);
+        run.setColor("000000");
+        
+        for(String p: essay.split("\n")){
+            
+        }
+        return d;
     }
 }
