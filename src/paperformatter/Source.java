@@ -8,6 +8,7 @@ package paperformatter;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 
 /**
  *
@@ -19,6 +20,7 @@ class Source {
     private String authors;
     private String title;
     private String url;
+    private XWPFParagraph paragraph;
 
     public Source() {
         this.entry = "";
@@ -44,6 +46,14 @@ class Source {
 
     public void setEntry(String entry) {
         this.entry = entry;
+    }
+    
+    public XWPFParagraph getParagraph() {
+        return paragraph;
+    }
+
+    public void setParagraph(XWPFParagraph p) {
+        this.paragraph = p;
     }
 
     public String getAuthors() {
@@ -89,10 +99,22 @@ class Source {
     }
     
     public String getDate(){
-        String date = "";
+        /*String date = "";
         Pattern p = Pattern.compile(("[0-9]"));
             Matcher m = p.matcher(entry);
-            System.out.println("matcher to string: " + m.toString());
+            System.out.println("matcher to string: " + m.toString());*/
+        String date = null;
+        for(String d: entry.split(" ")){
+            try{
+                System.out.println("look for num: " + d.substring(0, d.length()-1));
+                if(Integer.parseInt(d.substring(0, d.length()-1)) > 1000){
+                    date = d.substring(0, d.length()-1);
+                    break;
+                }
+            }catch(NumberFormatException e){
+                
+            }
+        }
         return date;
     }
     
